@@ -1,0 +1,30 @@
+<Release>
+  <ItemList 
+    title="Release"
+    results={state.results} 
+    pagination={state.pagination} 
+    type="releases"
+    nb_res={state.pagination.items}
+    onPageChange={page => chargerPage(page)}
+  />
+
+  <script>
+    export default {
+      state: {
+        results: [],
+        pagination: [],
+      },
+
+      onMounted() {
+        this.chargerPage(1)
+      },
+
+      async chargerPage(page) {
+        const donnees = await window.dernierTitre(page)
+        this.state.pagination = donnees.pagination
+        this.state.results = donnees.results
+        this.update()
+      }
+    };
+  </script>
+</Release>

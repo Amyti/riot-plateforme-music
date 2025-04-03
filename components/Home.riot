@@ -1,0 +1,29 @@
+<Home>
+<ItemList 
+  title="Accueil"
+  results={state.results}
+  pagination={state.pagination}
+  nb_res={state.pagination.items}
+  onPageChange={page => changePage(page)} 
+/>
+
+<script>
+  export default {
+    state: {
+      results: [],
+      pagination: [],
+    },
+
+    onMounted() {
+      this.changePage(1);
+    },
+
+    async changePage(page) {
+      const donnees = await window.dernierTitre(page);
+      this.state.results = donnees.results;
+      this.state.pagination = donnees.pagination;
+      this.update();
+    }
+  };
+</script>
+</Home>

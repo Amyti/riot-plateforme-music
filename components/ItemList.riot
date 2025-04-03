@@ -1,0 +1,170 @@
+<ItemList>
+  <div>
+    <h5>{props.title}</h5>
+  </div>
+
+  <p if={props.nb_res === 1 || props.nb_res === 0}>{props.nb_res} résultat</p>
+  <p if={props.nb_res > 1}>{props.nb_res} résultats</p>
+
+  
+  <div class="result">
+    <div class="grid-container">
+      <div class="grid-item" each={item in props.results}>
+        <article>
+          <div>
+            <header class='short-text'>
+              <a class="fav" if={app.isLoggedIn} onclick={() => toggleFavorite(item)}>
+                <i class={isFavorite(item.id) ? 'fas fa-star favorited' : 'fas fa-star'}></i>
+              </a>
+              <a if={item.type === 'artist'} href={"#/artists_info/" + item.id + "/" + encodeURIComponent(item.cover_image)}>
+                <h2 class="title">{item.title}</h2>
+              </a>
+              <a if={item.type === 'release'} href={"#/releases_info/" + item.id}>
+                <h2 class="title">{item.title}</h2>
+              </a>
+              <a if={item.type === 'master'} href={"#/masterview/" + item.master_id + "/" + encodeURIComponent(item.cover_image)}>
+                <h2 class="title">{item.title}</h2>
+              </a>
+              <a if={item.type === 'label'}>
+                <h2 class="title">{item.title}</h2>
+              </a>
+            </header>
+
+            <img class="image" src={item.cover_image} alt="Cover" />
+
+            <div if={item.type === 'release'}>
+              <br />
+              <a href={"#/masterview/" + item.master_id + "/" + encodeURIComponent(item.cover_image)}>Voir son Master</a>
+            </div>
+
+            <footer if={item.community} class="short-text">
+              <span class="want">
+                {item.community.want} <i class="fas fa-check"></i>
+              </span>
+              <span class="have">
+                {item.community.have} <i class="fas fa-heart"></i>
+              </span>
+            </footer>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  <div if={props.pagination?.pages > 1} class="pagination">
+    <span each={page in getVisiblePages()}
+          onclick={() => typeof page === 'number' && props.onPageChange && props.onPageChange(page)}
+          class={page === props.pagination.page ? 'page current-page' : (typeof page === 'number' ? 'page' : 'dots')}>
+      {typeof page === 'number' ? page : '...'}
+    </span>
+  </div>
+
+  <script>
+    export default {
+      props: ['title', 'results', 'nb_res', 'pagination', 'type', 'onPageChange'],
+
+      app: {
+        isLoggedIn: false,
+        favorites: []
+      },
+
+      getVisiblePages() {
+        const total = this.props.pagination.pages;
+        const current = this.props.pagination.page;
+        const pages = [];
+
+        if (total <= 7) {
+          for (let i = 1; i <= total; i++) pages.push(i);
+        } else {
+          if (current <= 4) {
+            pages.push(1, 2, 3, 4, 5, '...', total);
+          } else if (current >= total - 3) {
+            pages.push(1, '...', total - 4, total - 3, total - 2, total - 1, total);
+          } else {
+            pages.push(1, '...', current - 1, current, current + 1, '...', total);
+          }
+        }
+
+        return pages;
+      },
+
+      onMounted() {
+        this.app.isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+        this.loadFavorites();
+      },
+
+      async loadFavorites() {
+        try {
+          this.app.favorites = await window.getFavorites();
+          this.update();
+        } catch (e) {
+          console.error("Erreur chargement favoris :", e);
+        }
+      },
+
+      isFavorite(id) {
+        return this.app.favorites.some(fav => fav.item_id === id);
+      },
+
+      async toggleFavorite(item) {
+        if (this.isFavorite(item.id)) {
+          const toRemove = this.app.favorites.filter(fav => fav.item_id === item.id);
+          for (const fav of toRemove) {
+            await window.removeFavorite(fav.id);
+          }
+        } else {
+          await window.addFavorite(item.id, item.type, item.cover_image, item.title);
+        }
+        this.loadFavorites();
+      }
+    };
+  </script>
+
+  <style>
+
+  .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 0.4rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .pagination .page {
+      padding: 0.5rem 0.9rem;
+      font-size: 1rem;
+      border-radius: 0.4rem;
+      border: none;
+      background: var(--background-color, #2b2b2b);
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .pagination .page:hover {
+      background: var(--primary);
+    }
+
+    .pagination .current-page {
+      background-color: var(--primary);
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .pagination .dots {
+      padding: 0.5rem 0.9rem;
+      color: #888;
+      cursor: default;
+    }
+    .fav i {
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      color: blue;
+    }
+
+    .favorited {
+      color: gold !important;
+    }
+  </style>
+</ItemList>
+

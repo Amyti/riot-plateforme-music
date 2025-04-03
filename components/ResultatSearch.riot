@@ -1,0 +1,34 @@
+<ResultatSearch>
+  <ItemList 
+    title="Résultat de votre recherche:"
+    results={state.results} 
+    pagination={state.pagination} 
+    type={state.type}
+    nb_res={state.pagination.items}
+    onPageChange={page => chargerPage(page)}
+  />
+
+  <script>
+    export default {
+      props: ["query", "type"],
+
+      state: {
+        results: [],
+        pagination: [],
+        type: ""
+      },
+
+      onMounted() {
+        this.chargerPage(1)
+      },
+
+      async chargerPage(page) {
+        const donnees = await window.searchDiscogs(this.props.query, this.props.type, page)
+        this.state.pagination = donnees.pagination
+        this.state.results = donnees.results
+        this.state.type = this.props.type;
+        this.update()
+      }
+    };
+  </script>
+</ResultatSearch>

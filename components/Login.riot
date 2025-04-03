@@ -1,0 +1,133 @@
+<Login>
+  <form class="login-form" onsubmit={ login }>
+    <h2>Connexion</h2>
+
+    <div class="form-row">
+      <label for="email">Adresse mail</label>
+      <input type="email" id="email" name="email" placeholder="Email" required oninput={ updateField }>
+    </div>
+
+    <div class="form-row">
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" placeholder="Mot de passe" required oninput={ updateField }>
+    </div>
+
+    <p if={ state.error } class="error">{ state.error }</p>
+
+    <button type="submit" disabled={ !isFormValid() }>Se connecter</button>
+
+    <p class="switch-signin">Pas encore inscrit ? <a href="#/signin">Créer un compte</a></p>
+  </form>
+
+  <script>
+    export default {
+      state: {
+        email: '',
+        password: '',
+        error: null
+      },
+
+      isFormValid() {
+        return this.state.email && this.state.password;
+      },
+
+      updateField(e) {
+        this.state[e.target.name] = e.target.value;
+        this.update();
+      },
+
+      async login(e) {
+        e.preventDefault();
+        const { email, password } = this.state;
+
+        try {
+          const user_data = await window.loginUser(email, password);
+          const data = await window.getUserData(user_data.uid);
+
+          window.donnee_user.setLoggedIn(true);
+          window.donnee_user.setUserData(data);
+
+          localStorage.setItem("user_pseudo", data[0].pseudo);
+          localStorage.setItem("user_nom", data[0].nom);
+          localStorage.setItem("user_prenom", data[0].prenom);
+          localStorage.setItem("user_id", user_data.uid);
+
+          window.location.href = "/~kabbouri/s4_mp_R4.01_R4.A.10/";
+        } catch (error) {
+          this.state.error = "Email ou mot de passe incorrect.";
+          this.update();
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --nav-height: 5rem;
+    }
+
+    .login-form {
+      max-width: 1200px;
+      margin: calc(var(--nav-height) + 1rem) auto 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.6rem;
+      border: 1px solid var(--primary);
+      border-radius: 0.4rem;
+      background-color: var(--background-color);
+      color: var(--primary);
+    }
+
+    button {
+      padding: 0.75rem;
+      font-size: 1rem;
+      border-radius: 0.4rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #777;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: var(--del-color);
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .switch-signin {
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .switch-signin a {
+      color: var(--primary);
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .switch-signin a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</Login>

@@ -1,0 +1,64 @@
+<app>
+    <div class="app-content">
+
+    <HeaderP />
+    <br /><br />
+
+    <router base="https://dwarves.iut-fbleau.fr/~kabbouri/s4_mp_R4.01_R4.A.10/">
+        <route path="(#)?">
+            <Home />
+        </route>
+        <route path="#/login">
+            <Login />
+        </route>
+
+        <route path="#/signin">
+            <SignIn />
+        </route>
+
+        <route path="#/releases">
+            <Release />
+        </route>
+
+        <route path="#/artists">
+            <Artiste />
+        </route>
+
+        <route path="#/masterview/:id/:img_master">
+            <MasterView master_id={route.params.id} img_master={route.params.img_master} ></MasterView>
+        </route>
+
+        <route path="#/artists_info/:id/:img_artists">
+            <Artist_page artists_id={route.params.id} img_artists={route.params.img_artists}></Artist_page>
+        </route>
+
+        <route path="#/releases_info/:id">
+            <Release_page release_id={route.params.id} ></Release_page>
+        </route>
+
+        <route path="#/research/:query/:type">
+            <ResultatSearch query={route.params.query} type={route.params.type} ></ResultatSearch>
+        </route>
+
+        <route path="#/favorites">
+            <Fav />
+        </route>
+
+
+    </router>
+    </div>
+
+    
+<style>
+   
+
+    .app-content {
+      margin-top: 65px; /* ✅ évite que le contenu soit sous la navbar */
+      padding: 1rem; /* un peu d'air autour */
+    }
+  </style>
+    
+
+
+
+</app>

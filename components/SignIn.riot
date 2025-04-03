@@ -1,0 +1,152 @@
+<SignIn>
+  <section class="form-container">
+    <form onsubmit={ inscription }>
+      <h2>Créer un compte</h2>
+
+      <div class="grid">
+        <label for="prenom">
+          Prénom
+          <input type="text" id="prenom" name="prenom" placeholder="Prénom" oninput={ updateField } required />
+        </label>
+
+        <label for="nom">
+          Nom 
+          <input type="text" id="nom" name="nom" placeholder="Nom" oninput={ updateField } required />
+        </label>
+      </div>
+
+      <label for="pseudo" class="full-width">
+        Pseudo 
+        <input type="text" id="pseudo" name="pseudo" placeholder="Pseudo" oninput={ updateField } required />
+      </label>
+
+      <label for="email">Adresse mail</label>
+      <input type="email" id="email" name="email" placeholder="Email" oninput={ updateField } required />
+
+      <div class="grid">
+        <label for="password">
+          Mot de passe
+          <input type="password" id="password" name="password" placeholder="Mot de passe" oninput={ updateField } required />
+        </label>
+        
+        <label for="cpassword">
+          Confirmation
+          <input type="password" id="cpassword" name="cpassword" placeholder="Mot de passe" oninput={ updateField } required />
+        </label>
+      </div>
+
+      <p if={ state.error } class="error">{ state.error }</p>
+
+      <button type="submit" disabled={ !isFormValid() }>S'inscrire</button>
+
+      <p class="switch-login">Déjà un compte ? <a href="#/login">Se connecter</a></p>
+    </form>
+  </section>
+
+  <script>
+    export default {
+      state: {
+        prenom: '',
+        nom: '',
+        pseudo: '',
+        email: '',
+        password: '',
+        cpassword: '',
+        error: null
+      },
+
+      updateField(e) {
+        this.state[e.target.name] = e.target.value;
+        this.update();
+      },
+
+      isFormValid() {
+        return this.state.prenom && this.state.nom && this.state.pseudo &&
+               this.state.email && this.state.password && this.state.cpassword;
+      },
+
+      async inscription(e) {
+        e.preventDefault(); 
+        
+        const { email, password, cpassword, prenom, nom, pseudo } = this.state;
+
+        if (password !== cpassword) {
+          this.state.error = "Les mots de passe ne correspondent pas.";
+          this.update();
+          return;
+        }
+        
+        if (password.length < 6) {
+          this.state.error = "Le mot de passe doit contenir au moins 6 caractères.";
+          this.update();
+          return;
+        }
+
+        window.donnee_user.state.user_pseudo = this.state.pseudo;
+        window.donnee_user.state.user_nom = this.state.nom;
+        window.donnee_user.state.user_prenom = this.state.prenom;
+
+        localStorage.setItem("user_pseudo", this.state.pseudo);
+        localStorage.setItem("user_nom", this.state.nom);
+        localStorage.setItem("user_prenom", this.state.prenom);
+
+        const user = await window.signin(email, password, prenom, nom, pseudo);
+        window.location.href = '#/login';
+
+        this.update();
+      }
+    };
+  </script>
+
+  <style>
+    .form-container {
+      max-width: 700px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background-color: var(--card-background-color);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      margin-bottom: 1rem;
+    }
+
+    label.full-width {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .error {
+      color: var(--del-color);
+      margin-top: 0.5rem;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .switch-login {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .switch-login a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .switch-login a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</SignIn>
