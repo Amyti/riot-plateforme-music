@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, query, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -67,6 +67,11 @@ export async function getFavorites() {
   
     return favorites;
   }
+
+  export async function logoutUser(){
+    const userSignout = await signOut(auth);
+    return userSignout;
+  }
   
   export async function removeFavorite(favoriteId) {
     const userId = localStorage.getItem("user_id");
@@ -77,7 +82,7 @@ export async function getFavorites() {
   }
   
   export async function addFavorite(item_id, item_type, item_img, item_title) {
-    const userId = localStorage.getItem("user_id"); // 👈 et là aussi !
+    const userId = localStorage.getItem("user_id");
     if (!userId) return;
   
     const favoritesCollectionRef = collection(db, "users", userId, "favorites");
@@ -121,6 +126,8 @@ window.addFavorite = addFavorite;
 window.getFavorites = getFavorites;
 window.getUserData = getUserData;
 window.removeFavorite = removeFavorite;
+window.logoutUser = logoutUser;
+
 
 
 
